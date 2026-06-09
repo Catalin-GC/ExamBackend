@@ -45,18 +45,20 @@ class RichiestaRimborsoViewSet(viewsets.ModelViewSet):
         serializer.save(dipendente=self.request.user,
                          stato=RichiestaRimborso.Stato.IN_ATTESA)
 
-    def _check_owner_in_attesa(self, richiesta):
+    def _check_owner_in_attesa(self, richiesta, azione="modificare"):
         if richiesta.dipendente != self.request.user:
-            raise PermissionDenied("Non puoi modificare richieste di altri.")
+            raise PermissionDenied("Non puoi gestire richieste di altri dipendenti.")
         if richiesta.stato != RichiestaRimborso.Stato.IN_ATTESA:
-            raise ValidationError("Solo le richieste In attesa sono modificabili.")
+            raise ValidationError(
+                f"Solo le richieste in attesa possono essere {azione}."
+            )
 
     def update(self, request, *args, **kwargs):
-        self._check_owner_in_attesa(self.get_object())
+        self._check_owner_in_attesa(self.get_object(), "modificate")
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        self._check_owner_in_attesa(self.get_object())
+        self._check_owner_in_attesa(self.get_object(), "eliminate")
         return super().destroy(request, *args, **kwargs)
 
     
@@ -66,7 +68,7 @@ class RichiestaRimborsoViewSet(viewsets.ModelViewSet):
     def approva(self, request, pk=None):
         r = self.get_object()
         if r.stato != RichiestaRimborso.Stato.IN_ATTESA:
-            raise ValidationError("Solo le richieste In attesa possono essere approvate.")
+            raise ValidationError("Solo le richieste in attesa possono essere approvate.")
         r.stato = RichiestaRimborso.Stato.APPROVATA
         r.responsabile_valutazione = request.user
         r.data_valutazione = timezone.now()
@@ -77,7 +79,7 @@ class RichiestaRimborsoViewSet(viewsets.ModelViewSet):
     def rifiuta(self, request, pk=None):
         r = self.get_object()
         if r.stato != RichiestaRimborso.Stato.IN_ATTESA:
-            raise ValidationError("Solo le richieste In attesa possono essere rifiutate.")
+            raise ValidationError("Solo le richieste in attesa possono essere rifiutate.")
         r.stato = RichiestaRimborso.Stato.RIFIUTATA
         r.responsabile_valutazione = request.user
         r.data_valutazione = timezone.now()
