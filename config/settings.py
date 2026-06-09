@@ -150,7 +150,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-    'EXCEPTION_HANDLER': 'config.exceptions.custom_exception_handler',
+    'EXCEPTION_HANDLER': 'accounts.exceptions.custom_exception_handler',
 }
 
 # JWT (durata token)
