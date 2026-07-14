@@ -2,6 +2,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth import get_user_model
 
 from .debug_utils import imposta_debug
 from .models import ImpostazioniSistema
@@ -12,6 +13,8 @@ from .serializers import (
     RegisterSerializer,
     UserSerializer,
 )
+
+User = get_user_model()
 
 
 class RegisterView(generics.CreateAPIView):
@@ -30,6 +33,21 @@ class RegisterView(generics.CreateAPIView):
 
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
+
+
+class CheckCodiceFiscaleView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        cf = request.query_params.get("cf", "").strip().upper()
+        if not cf:
+            return Response(
+                {"detail": "Inserisci il codice fiscale."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        gia_presente = User.objects.filter(codice_fiscale__iexact=cf).exists()
+        return Response({"disponibile": not gia_presente, "codice_fiscale": cf})
 
 
 class MeView(APIView):

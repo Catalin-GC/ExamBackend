@@ -32,25 +32,32 @@ MESSAGGI = {
         "La categoria selezionata non esiste."
     ),
     "Object with id=0 does not exist.": "La categoria selezionata non esiste.",
-    "Operazione riservata ai responsabili amministrativi.": (
-        "Operazione riservata ai responsabili amministrativi."
+    "Operazione riservata ai referenti Academy.": (
+        "Operazione riservata ai referenti Academy."
     ),
 }
 
 CAMPI = {
     "email": "Email",
+    "codice_fiscale": "Codice fiscale",
     "password": "Password",
     "conferma_password": "Conferma password",
     "nome": "Nome",
     "cognome": "Cognome",
     "ruolo": "Ruolo",
-    "data_spesa": "Data spesa",
-    "importo": "Importo",
     "descrizione": "Descrizione",
     "categoria": "Categoria",
-    "riferimento_giustificativo": "Riferimento giustificativo",
     "stato": "Stato",
-    "motivazione_rifiuto": "Motivazione rifiuto",
+    "titolo": "Titolo",
+    "durata_ore": "Durata (ore)",
+    "obbligatorio": "Obbligatorio",
+    "attivo": "Attivo",
+    "corso": "Corso",
+    "dipendente": "Dipendente",
+    "data_assegnazione": "Data assegnazione",
+    "data_scadenza": "Data scadenza",
+    "data_completamento": "Data completamento",
+    "nome": "Nome",
     "non_field_errors": "Errori",
     "detail": "Errore",
 }

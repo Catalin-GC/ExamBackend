@@ -4,8 +4,6 @@ from .debug_utils import DEBUG_ENV, debug_forzato_db
 
 
 class DebugSuperuserMiddleware:
-    """Applica DEBUG da database (toggle superutente) per ogni richiesta."""
-
     def __init__(self, get_response):
         self.get_response = get_response
 

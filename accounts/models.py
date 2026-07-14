@@ -24,7 +24,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        extra_fields.setdefault("ruolo", User.Ruolo.RESPONSABILE)
+        extra_fields.setdefault("ruolo", User.Ruolo.REFERENTE)
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Il superuser deve avere is_staff=True.")
@@ -38,9 +38,16 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     class Ruolo(models.TextChoices):
         DIPENDENTE = "DIPENDENTE", "Dipendente"
-        RESPONSABILE = "RESPONSABILE", "Responsabile amministrativo"
+        REFERENTE = "REFERENTE", "Referente Academy"
 
     email = models.EmailField("indirizzo email", unique=True)
+    codice_fiscale = models.CharField(
+        "codice fiscale",
+        max_length=16,
+        unique=True,
+        null=True,
+        blank=True,
+    )
     nome = models.CharField(max_length=100)
     cognome = models.CharField(max_length=100)
     ruolo = models.CharField(
@@ -58,16 +65,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ["nome", "cognome"]
 
     @property
-    def is_responsabile(self):
-        return self.ruolo == self.Ruolo.RESPONSABILE
+    def is_referente(self):
+        return self.ruolo == self.Ruolo.REFERENTE
 
     def __str__(self):
         return f"{self.nome} {self.cognome} ({self.email})"
 
 
 class ImpostazioniSistema(models.Model):
-    """Singleton: impostazioni globali modificabili dal superutente."""
-
     debug_attivo = models.BooleanField(
         "debug attivo",
         default=False,

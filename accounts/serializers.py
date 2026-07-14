@@ -49,8 +49,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "nome", "cognome", "email", "ruolo", "password", "conferma_password"]
-        extra_kwargs = CAMPI_UTENTE
+        fields = [
+            "id", "nome", "cognome", "email", "codice_fiscale",
+            "ruolo", "password", "conferma_password",
+        ]
+        extra_kwargs = {
+            **CAMPI_UTENTE,
+            "codice_fiscale": {"error_messages": {
+                "unique": "Codice fiscale già registrato.",
+            }},
+        }
 
     def validate_nome(self, value):
         if not value.strip():
@@ -66,6 +74,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         if User.objects.filter(email__iexact=value).exists():
             raise serializers.ValidationError("Email già registrata.")
         return value
+
+    def validate_codice_fiscale(self, value):
+        if not value or not value.strip():
+            return None
+        cf = value.strip().upper()
+        if User.objects.filter(codice_fiscale__iexact=cf).exists():
+            raise serializers.ValidationError("Codice fiscale già registrato.")
+        return cf
 
     def validate_password(self, value):
         try:
@@ -100,6 +116,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data["password"],
             nome=validated_data["nome"],
             cognome=validated_data["cognome"],
+            codice_fiscale=validated_data.get("codice_fiscale"),
             ruolo=validated_data.get("ruolo", User.Ruolo.DIPENDENTE),
         )
 

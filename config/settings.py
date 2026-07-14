@@ -20,7 +20,7 @@ SECRET_KEY = os.environ.get(
     'django-insecure-q7uf=$qwblz9b-=w8mcnd$6)==x^gfo-61+yrf8=n6#)npx*oz'
 )
 
-# DEBUG da variabile d'ambiente; il superutente può forzare DEBUG via database
+# DEBUG da variabile d'ambiente
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 DEBUG_DA_ENV = DEBUG
 
@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'accounts',
-    'spese_aziendali'
+    'academy',
 ]
 
 MIDDLEWARE = [
@@ -158,9 +158,11 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', '')
 if FRONTEND_URL:
     CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
 
-# Accetta tutti i domini Vercel 
+
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r'^https://.*\.vercel\.app$',
+    r'^http://localhost:\d+$',
+    r'^http://127\.0\.0\.1:\d+$',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
