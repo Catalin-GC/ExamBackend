@@ -63,3 +63,50 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.nome} {self.cognome} ({self.email})"
+
+
+class ImpostazioniSistema(models.Model):
+    """Singleton: impostazioni globali modificabili dal superutente."""
+
+    debug_attivo = models.BooleanField(
+        "debug attivo",
+        default=False,
+        help_text="Se attivo, abilita le pagine di debug Django in produzione.",
+    )
+    aggiornato_il = models.DateTimeField(auto_now=True)
+    aggiornato_da = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="impostazioni_aggiornate",
+    )
+
+    class Meta:
+        verbose_name = "Impostazioni sistema"
+        verbose_name_plural = "Impostazioni sistema"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+        from django.core.cache import cache
+
+        cache.delete("impostazioni_sistema")
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def get_solo(cls):
+        from django.core.cache import cache
+
+        cached = cache.get("impostazioni_sistema")
+        if cached is not None:
+            return cached
+        obj, _ = cls.objects.get_or_create(pk=1)
+        cache.set("impostazioni_sistema", obj, 60)
+        return obj
+
+    def __str__(self):
+        stato = "attivo" if self.debug_attivo else "disattivo"
+        return f"Impostazioni sistema (debug {stato})"

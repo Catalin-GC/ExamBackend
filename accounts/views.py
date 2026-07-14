@@ -3,7 +3,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
+from .debug_utils import imposta_debug
+from .models import ImpostazioniSistema
+from .permissions import IsSuperuser
+from .serializers import (
+    DebugImpostazioniSerializer,
+    LoginSerializer,
+    RegisterSerializer,
+    UserSerializer,
+)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -29,3 +37,20 @@ class MeView(APIView):
 
     def get(self, request):
         return Response(UserSerializer(request.user).data)
+
+
+class DebugImpostazioniView(APIView):
+    permission_classes = [IsSuperuser]
+
+    def get(self, request):
+        imp = ImpostazioniSistema.get_solo()
+        return Response(DebugImpostazioniSerializer(imp).data)
+
+    def patch(self, request):
+        serializer = DebugImpostazioniSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        imp = imposta_debug(
+            serializer.validated_data["debug_attivo"],
+            utente=request.user,
+        )
+        return Response(DebugImpostazioniSerializer(imp).data)

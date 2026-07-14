@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
 
+from accounts.models import ImpostazioniSistema
 from spese_aziendali.models import CategoriaSpesa, RichiestaRimborso
 
 User = get_user_model()
@@ -36,6 +37,12 @@ class Command(BaseCommand):
         if created:
             responsabile.set_password("Password123!")
             responsabile.save()
+        if not responsabile.is_superuser:
+            responsabile.is_superuser = True
+            responsabile.is_staff = True
+            responsabile.save(update_fields=["is_superuser", "is_staff"])
+
+        ImpostazioniSistema.objects.get_or_create(pk=1)
 
         # --- Dipendenti ---
         dip1, c1 = User.objects.get_or_create(

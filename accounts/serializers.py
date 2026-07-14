@@ -122,3 +122,22 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "nome", "cognome", "email", "ruolo", "date_joined"]
+
+
+class DebugImpostazioniSerializer(serializers.Serializer):
+    debug_attivo = serializers.BooleanField()
+
+    def to_representation(self, instance):
+        from .debug_utils import DEBUG_ENV, debug_effettivo, debug_forzato_db
+
+        return {
+            "debug_attivo": instance.debug_attivo,
+            "debug_env": DEBUG_ENV,
+            "debug_effettivo": debug_effettivo(),
+            "aggiornato_il": instance.aggiornato_il,
+            "aggiornato_da": (
+                UserSerializer(instance.aggiornato_da).data
+                if instance.aggiornato_da
+                else None
+            ),
+        }

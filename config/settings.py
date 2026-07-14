@@ -20,7 +20,9 @@ SECRET_KEY = os.environ.get(
     'django-insecure-q7uf=$qwblz9b-=w8mcnd$6)==x^gfo-61+yrf8=n6#)npx*oz'
 )
 
+# DEBUG da variabile d'ambiente; il superutente può forzare DEBUG via database
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG_DA_ENV = DEBUG
 
 ALLOWED_HOSTS = [
     h.strip() for h in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
@@ -28,6 +30,7 @@ ALLOWED_HOSTS = [
 ]
 
 _render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+
 if _render_host:
     ALLOWED_HOSTS.append(_render_host)
 ALLOWED_HOSTS.append('.onrender.com')
@@ -43,12 +46,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Third party
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
 
-    # Local
     'accounts',
     'spese_aziendali'
 ]
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'accounts.middleware.DebugSuperuserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -85,9 +87,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -95,9 +94,6 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -115,8 +111,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
 
 LANGUAGE_CODE = 'it-it'
 
@@ -126,18 +120,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
-
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Modello utente personalizzato (login con email)
 AUTH_USER_MODEL = 'accounts.User'
 
-# Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -153,8 +141,7 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'accounts.exceptions.custom_exception_handler',
 }
 
-# JWT (durata token)
-from datetime import timedelta  # noqa: E402
+from datetime import timedelta 
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
@@ -162,21 +149,16 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-    'http://localhost:5174',
-    'http://127.0.0.1:5174',
-    'http://localhost:5175',
-    'http://127.0.0.1:5175',
 ]
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', '')
+
 if FRONTEND_URL:
     CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
 
-# Accetta tutti i domini Vercel (CORS_ALLOWED_ORIGINS non supporta wildcard)
+# Accetta tutti i domini Vercel 
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r'^https://.*\.vercel\.app$',
 ]
@@ -185,12 +167,13 @@ CSRF_TRUSTED_ORIGINS = [
     'https://.onrender.com',
     'https://.vercel.app',
 ]
+
 if _render_host:
     CSRF_TRUSTED_ORIGINS.append(f'https://{_render_host}')
+
 if FRONTEND_URL:
     CSRF_TRUSTED_ORIGINS.append(FRONTEND_URL)
 
-# Dopo il login dalla Browsable API (/api-auth/login/) torna alla root API
 LOGIN_REDIRECT_URL = '/api/'
 LOGOUT_REDIRECT_URL = '/api-auth/login/'
 
