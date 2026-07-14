@@ -160,14 +160,13 @@ if FRONTEND_URL:
 
 
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    r'^https://.*\.vercel\.app$',
+    r'^https://.*\.onrender\.com$',
     r'^http://localhost:\d+$',
     r'^http://127\.0\.0\.1:\d+$',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://.onrender.com',
-    'https://.vercel.app',
 ]
 
 if _render_host:
